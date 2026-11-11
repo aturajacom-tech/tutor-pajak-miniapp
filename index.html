@@ -160,6 +160,18 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:
 @keyframes stampin{to{transform:rotate(-14deg) scale(1);opacity:.95}}
 @media (prefers-reduced-motion:reduce){.seal{animation:none;opacity:.95;transform:rotate(-14deg)}.skel{animation:none}.tbar>div{transition:none}}
 .rv{display:flex;flex-direction:column;gap:8px}
+/* riwayat simulasi (T6) */
+.srow{min-height:64px;border-radius:18px;padding:10px 14px 10px 10px;background:var(--sf);border:1px solid var(--ln);display:flex;align-items:center;gap:12px;width:100%;text-align:left;color:var(--tx)}
+.srow.old{min-height:56px;background:transparent;border:1px dashed var(--ln);color:var(--mu);cursor:default}
+.dtab{flex:none;width:44px;height:46px;border-radius:12px;background:var(--up);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.srow.old .dtab{background:none;height:40px}
+.dtab b{font-family:var(--disp);font-size:18px;font-weight:800;line-height:1}
+.srow.old .dtab b{font-size:16px;font-weight:700}
+.dtab i{font-style:normal;font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--mu)}
+.srow .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.srow .sc{font-family:var(--disp);font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+.srow.old .sc{font-size:20px;font-weight:700;padding-right:22px}
+.statn{font-family:var(--disp);font-size:26px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
 .badge{font-size:12px;font-weight:700}
 /* duel */
 .dl-seal{position:absolute;right:-14px;top:-14px;width:104px;height:104px;border-radius:52px;border:2px solid #E4B86055;display:flex;align-items:center;justify-content:center;transform:rotate(-12deg)}
@@ -684,10 +696,11 @@ function renderKes(keep) {
 var tick = null, skew = 0, pending = { ans: {}, ragu: {} }, syncT = null, submitting = false;
 function left() { return S.sim ? S.sim.deadline - (Date.now() + skew) : 0; }
 function stopTick() { if (tick) { clearInterval(tick); tick = null; } }
-function renderSimStart() {
+function renderSimStart(keep) {
+  if (keep !== undefined && S.simScreen !== 'start') return; // penyegaran latar jangan menimpa layar riwayat/soal
+  S.simScreen = 'start';
   stopTick();
-  var m = S.me, s = m.sim;
-  var hist = (m.sims || []).map(function (p, k, a) { return k === a.length - 1 ? '<strong style="color:' + (p >= 70 ? 'var(--ac)' : 'var(--bad)') + '">' + p + '</strong>' : '<span>' + p + '</span>'; }).join('');
+  var m = S.me, s = m.sim, h = m.simHist;
   var v = '<h1 class="h-title">Ruang ujian</h1>' +
     '<section class="card big" style="padding:22px 20px;display:flex;flex-direction:column;gap:20px">' +
       '<div class="stat3"><div style="display:flex;flex-direction:column;gap:2px"><span class="v">' + s.n + '</span><span class="small mu">soal campuran</span></div>' +
@@ -697,13 +710,167 @@ function renderSimStart() {
       '<div style="display:flex;flex-direction:column;gap:12px;font-size:14px" class="mu2"><span>5 soal dari tiap topik, urutannya diacak.</span><span>Boleh lompat soal dan menandai yang ragu.</span><span>Pembahasan dibuka setelah dikumpulkan. Waktu habis berarti terkumpul otomatis.</span></div>' +
     '</section>' +
     (s.lastDone && s.lastDone.auto && Date.now() - s.lastDone.at < 3600e3 ? '<button class="banner" id="lastres"><span class="dot" style="background:var(--warn)"></span><span style="flex:1">Waktu simulasi terakhir habis dan sudah dinilai otomatis: skor ' + s.lastDone.pct + '</span>' + ic('chevR', 16, 'var(--mu)', 2) + '</button>' : '') +
-    (hist ? '<div class="between s13 mu" style="padding:0 4px;align-items:center"><span>Simulasi terakhir</span><span class="num" style="display:flex;gap:10px">' + hist + '</span></div>' : '') +
-    (s.lastDone ? '<button class="s13" id="seeres" style="background:none;border:0;color:var(--ac);min-height:44px">Lihat pembahasan simulasi terakhir</button>' : '');
+    (h ? '<button class="card linkcard" id="riw" style="border-color:var(--lock)" aria-label="Buka riwayat simulasi: ' + h.count + ' kali, terakhir ' + h.last + ', terbaik ' + h.best + '">' +
+      '<div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0"><span style="font-size:15px;font-weight:700">Riwayat simulasi</span>' +
+      '<span class="s13 mu">' + h.count + ' kali · terakhir <strong style="color:' + (h.last >= 70 ? 'var(--ac)' : 'var(--bad)') + '">' + h.last + '</strong> · terbaik ' + h.best + '</span></div>' +
+      miniSpark(h.trend) + ic('chevR', 16, 'var(--mu)', 2) + '</button>' : '');
   var dock = s.active ? '<button class="btn pri" id="mulai">Lanjutkan ujian <span class="sub">· sisa ' + mmss(s.active.left) + '</span></button>' : '<button class="btn pri" id="mulai">Masuk ruang ujian</button>';
   frame(v, dock);
   document.getElementById('mulai').onclick = startSim;
   var lr = document.getElementById('lastres'); if (lr) lr.onclick = showLastResult;
-  var sr = document.getElementById('seeres'); if (sr) sr.onclick = showLastResult;
+  var rw = document.getElementById('riw'); if (rw) rw.onclick = function () { hap('sel'); openRiwayat(); };
+}
+
+// ---------- riwayat simulasi (T6) ----------
+function pad2(n) { return (n < 10 ? '0' : '') + n; }
+function dparts(t) {
+  var d = new Date(t);
+  return { d: pad2(d.getDate()), m: d.toLocaleDateString('id-ID', { month: 'short' }).replace('.', '').toUpperCase(),
+    day: d.toLocaleDateString('id-ID', { weekday: 'long' }), hm: pad2(d.getHours()) + '.' + pad2(d.getMinutes()),
+    dm: d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }).replace('.', '') };
+}
+function scol(p) { return p >= 70 ? 'var(--ac)' : 'var(--bad)'; }
+function miniSpark(tr) {
+  if (!tr || tr.length < 2) return '';
+  var n = tr.length, pts = tr.map(function (p, k) { return [3 + k * 66 / (n - 1), 33 - Math.max(0, Math.min(100, p)) * 0.3]; });
+  var last = pts[n - 1];
+  return '<svg width="72" height="36" viewBox="0 0 72 36" fill="none" aria-hidden="true" style="flex:none"><path d="M2 12H70" stroke="#E4B860" stroke-opacity=".45" stroke-dasharray="3 3"/>' +
+    '<path d="M' + pts.map(function (q) { return q[0].toFixed(1) + ' ' + q[1].toFixed(1); }).join('L') + '" stroke="#5ED3A5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<circle cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="3.5" fill="#5ED3A5"/></svg>';
+}
+function bigChart(tr) {
+  var n = tr.length, lo = Math.min(30, Math.floor((Math.min.apply(null, tr.map(function (x) { return x.pct; })) - 5) / 10) * 10);
+  lo = Math.max(0, lo);
+  var hi = Math.min(100, Math.max(90, Math.ceil((Math.max.apply(null, tr.map(function (x) { return x.pct; })) + 5) / 10) * 10));
+  var y = function (p) { return 96 - (p - lo) / (hi - lo) * 86; };
+  var x = function (k) { return n === 1 ? 156 : 10 + k * 288 / (n - 1); };
+  var y70 = y(70).toFixed(1), out = '';
+  out += '<path d="M6 ' + y70 + 'H306" stroke="#E4B860" stroke-opacity=".5" stroke-dasharray="4 4"/>' +
+    '<text x="6" y="' + (y70 - 6) + '" text-anchor="start" fill="#E4B860" font-size="10" font-weight="700" letter-spacing=".08em" font-family="Plus Jakarta Sans, sans-serif">AMBANG 70</text>';
+  for (var k = 1; k < n; k++) {
+    var oldSeg = tr[k].old;
+    out += '<path d="M' + x(k - 1).toFixed(1) + ' ' + y(tr[k - 1].pct).toFixed(1) + 'L' + x(k).toFixed(1) + ' ' + y(tr[k].pct).toFixed(1) + '" stroke="' + (oldSeg ? '#6F7D76' : '#5ED3A5') + '" stroke-width="' + (oldSeg ? 1.5 : 2.2) + '"' + (oldSeg ? ' stroke-dasharray="3 3"' : '') + ' stroke-linecap="round"/>';
+  }
+  tr.forEach(function (t, k) {
+    var cx = x(k).toFixed(1), cy = y(t.pct).toFixed(1);
+    if (t.old) out += '<circle cx="' + cx + '" cy="' + cy + '" r="3" stroke="#6F7D76" stroke-width="1.5" fill="#151E1B"/>';
+    else out += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (k === n - 1 ? 5 : 3) + '" fill="' + (t.pct >= 70 ? '#5ED3A5' : '#FF8A7A') + '"' + (k === n - 1 ? ' stroke="#151E1B" stroke-width="2"' : '') + '/>';
+  });
+  var a = tr[0].pct, b = tr[n - 1].pct;
+  return '<svg viewBox="0 0 312 104" fill="none" role="img" aria-label="Grafik skor simulasi dari ' + a + ' ke ' + b + '; garis putus-putus emas adalah ambang aman 70" style="display:block;width:100%;height:auto">' + out + '</svg>';
+}
+function histFit() {
+  var avail = (window.innerHeight || 700) - 54 - 64 - 220 - 76 - 64;
+  return Math.max(4, Math.min(12, Math.floor(avail / 72)));
+}
+function riwHead(label, fn) {
+  return '<header class="topbar"><button class="back" id="rbk" aria-label="Kembali ke ' + esc(label.toLowerCase()) + '">' + ic('chevL', 22, 'var(--tx)', 2) + '</button><span class="s13 mu">' + esc(label) + '</span></header>';
+}
+function bindBack(fn) { setBack(fn); var b = document.getElementById('rbk'); if (b) b.onclick = fn; }
+function backToStart() { hap('sel'); S.simScreen = 'start'; setBack(null); renderSimStart(); }
+function openRiwayat() {
+  S.simScreen = 'riwayat'; S.histN = histFit();
+  frame('<div class="skel" style="height:60px"></div><div class="skel" style="height:200px"></div><div class="skel" style="height:64px"></div><div class="skel" style="height:64px"></div>', '', { top: riwHead('Ruang ujian') });
+  bindBack(backToStart);
+  api('sim/history').then(function (d) { if (S.simScreen !== 'riwayat') return; S.hist = d; renderRiwayat(); })
+    .catch(function (e) { if (S.simScreen === 'riwayat') errorView(e, openRiwayat); });
+}
+function renderRiwayat(keep) {
+  var d = S.hist, st = d.stats;
+  var v = '<div style="display:flex;flex-direction:column;gap:2px"><h1 class="h-title">Riwayat simulasi</h1>' +
+    '<span class="s13 mu">Tingkat ' + esc(d.tk) + (st.count ? ' · ' + st.count + ' kali · terbaru di atas' : '') + '</span></div>';
+  if (!st.count) {
+    v += '<div class="empty"><span class="mu" style="font-size:14px;line-height:1.5">Belum ada simulasi di Tingkat ' + esc(d.tk) + '. Simulasi pertamamu akan tercatat di sini, lengkap dengan pembahasannya.</span></div>';
+    frame(v, '<button class="btn pri" id="mulai2">Masuk ruang ujian</button>', { top: riwHead('Ruang ujian') });
+    bindBack(backToStart);
+    document.getElementById('mulai2').onclick = function () { S.simScreen = 'start'; setBack(null); startSim(); };
+    return;
+  }
+  v += '<section class="card big" style="padding:18px 18px 16px;display:flex;flex-direction:column;gap:14px">' + bigChart(d.trend) +
+    '<div style="height:1px;background:var(--ln)"></div><div class="stat3">' +
+      '<div style="display:flex;flex-direction:column;gap:2px"><span class="statn" style="color:' + scol(st.best) + '">' + st.best + '</span><span class="small mu">terbaik</span></div>' +
+      '<div style="display:flex;flex-direction:column;gap:2px"><span class="statn">' + st.avg5 + '</span><span class="small mu">rata-rata ' + Math.min(5, st.count) + ' terakhir</span></div>' +
+      '<div style="display:flex;flex-direction:column;gap:2px"><span class="statn" style="color:var(--au)">' + st.pass + '×</span><span class="small mu">lolos ambang</span></div>' +
+    '</div></section>';
+  var rows = d.items.map(function (x) { return { full: true, x: x }; });
+  if (d.old.length) rows = rows.concat([{ sep: true }], d.old.map(function (x) { return { old: true, x: x }; }));
+  var shown = 0, list = '';
+  for (var k = 0; k < rows.length && shown < S.histN; k++) {
+    var r = rows[k];
+    if (r.sep) {
+      var since = d.items.length ? dparts(d.items[d.items.length - 1].at).dm : '';
+      list += '<div style="display:flex;flex-direction:column;gap:4px;padding:14px 4px 4px"><span class="eyebrow">' + (since ? 'Sebelum ' + esc(since) + ' · skor saja' : 'Rekaman lama · skor saja') + '</span>' +
+        '<span class="small mu" style="line-height:1.5">Pembahasan simulasi lama tidak tersimpan, jadi tidak bisa dibuka.</span></div>';
+      continue;
+    }
+    shown++;
+    var p = dparts(r.x.at);
+    if (r.full) {
+      list += '<button class="srow" data-sid="' + esc(r.x.id) + '" aria-label="Simulasi ' + esc(p.dm) + ', skor ' + r.x.pct + ', buka pembahasan">' +
+        '<span class="dtab"><b>' + p.d + '</b><i>' + esc(p.m) + '</i></span>' +
+        '<span class="t"><span style="font-size:14px;font-weight:600">' + esc(p.day.charAt(0).toUpperCase() + p.day.slice(1)) + ' · ' + p.hm + '</span>' +
+        '<span class="small mu">' + r.x.ok + '/' + r.x.n + ' benar · ' + r.x.min + ' mnt · ' + (r.x.src === 'chat' ? 'chat' : 'aplikasi') + (r.x.auto ? '<span style="color:var(--warn)"> · waktu habis</span>' : '') + '</span></span>' +
+        '<span class="sc" style="color:' + scol(r.x.pct) + '">' + r.x.pct + '</span>' + ic('chevR', 16, 'var(--mu)', 2) + '</button>';
+    } else {
+      list += '<div class="srow old"><span class="dtab"><b>' + p.d + '</b><i>' + esc(p.m) + '</i></span><span class="t small">' + (r.x.min != null ? r.x.min + ' mnt' : '') + '</span><span class="sc">' + r.x.pct + '</span></div>';
+    }
+  }
+  var total = d.items.length + d.old.length, left = total - shown;
+  v += '<div style="display:flex;flex-direction:column;gap:8px">' + list + '</div>';
+  if (left > 0) v += '<button class="btn ghost" id="more" style="min-height:48px;font-size:15px">Tampilkan lagi <span class="sub mu">· ' + left + ' lagi</span></button>';
+  else v += '<span class="s13 mu" style="text-align:center;padding:8px 0 4px">Itu semua simulasimu di Tingkat ' + esc(d.tk) + '.</span>';
+  frame(v, '', { top: riwHead('Ruang ujian'), keepScroll: keep });
+  bindBack(backToStart);
+  app.querySelectorAll('[data-sid]').forEach(function (b) { b.onclick = function () { hap('sel'); openDetail(b.getAttribute('data-sid')); }; });
+  var mo = document.getElementById('more');
+  if (mo) mo.onclick = function () { hap('light'); S.histN += histFit(); var vv = document.getElementById('view'); renderRiwayat(vv ? vv.scrollTop : 0); };
+}
+function openDetail(id) {
+  if (S.simScreen === 'riwayat') { var vv = document.getElementById('view'); S.histY = vv ? vv.scrollTop : 0; }
+  S.simScreen = 'detail';
+  frame('<div class="skel" style="height:170px"></div><div class="skel" style="height:150px"></div><div class="skel" style="height:120px"></div>', '', { top: riwHead('Riwayat simulasi') });
+  bindBack(backToRiwayat);
+  api('sim/detail', null, '?id=' + encodeURIComponent(id)).then(function (d) {
+    if (S.simScreen !== 'detail') return;
+    S.det = d; S.detF = d.wrongN ? 'salah' : 'semua'; renderDetail();
+  }).catch(function (e) { if (S.simScreen === 'detail') errorView(e, function () { openDetail(id); }); });
+}
+function backToRiwayat() {
+  hap('sel'); S.simScreen = 'riwayat';
+  if (S.hist) { var y = S.histY; renderRiwayat(y); } else openRiwayat();
+}
+function renderDetail(keep) {
+  var d = S.det, p = dparts(d.at), c = d.aman ? '#E4B860' : '#FF8A7A';
+  var delta = d.delta == null ? '' : '<span style="align-self:flex-start;margin-top:8px;padding:6px 12px;border-radius:12px;font-size:13px;font-weight:700;' +
+    (d.delta >= 0 ? 'background:var(--acbg);color:var(--ac2)">+' + d.delta : 'background:#2E1A17;color:var(--bad)">−' + Math.abs(d.delta)) + ' dari simulasi sebelumnya</span>';
+  var v = '<section class="card big" style="position:relative;padding:22px 20px;display:flex;flex-direction:column;gap:6px;overflow:hidden">' +
+      '<span class="eyebrow">' + esc((p.day + ', ' + p.dm + ' · ' + p.hm).toUpperCase()) + '</span>' +
+      '<span class="disp num" style="font-size:64px;font-weight:800;line-height:1">' + d.pct + '</span>' +
+      '<span class="s13 mu">' + d.ok + ' dari ' + d.n + ' benar · ' + mmss(d.used) + ' terpakai · ' + (d.src === 'chat' ? 'di chat' : 'di aplikasi') + (d.auto ? ' · waktu habis' : '') + '</span>' + delta +
+      '<div style="position:absolute;right:-14px;top:-14px;width:112px;height:112px;border-radius:56px;border:2px solid ' + c + '66;display:flex;align-items:center;justify-content:center;transform:rotate(-12deg)" aria-hidden="true">' +
+        '<div style="width:92px;height:92px;border-radius:46px;border:1px dashed ' + c + '88;display:flex;align-items:center;justify-content:center;text-align:center;white-space:pre-line;font-family:var(--disp);font-weight:800;letter-spacing:.1em;line-height:1.1;color:' + c + ';font-size:' + (d.aman ? '20px' : '13px') + '">' + (d.aman ? 'AMAN' : 'BELUM\nAMAN') + '</div></div>' +
+    '</section>' +
+    '<section class="card" style="display:flex;flex-direction:column;gap:10px">' + d.per.map(function (q) {
+      var f = q.n ? q.c / q.n : 0, col = f >= 0.8 ? '#5ED3A5' : f >= 0.6 ? '#F2B04C' : '#FF8A7A';
+      return '<div class="row s13"><span style="flex:1">' + esc(q.short) + '</span><div class="prog" style="flex:none;width:90px"><div style="width:' + Math.round(f * 100) + '%;background:' + col + '"></div></div><span class="num mu" style="width:34px;text-align:right">' + q.c + '/' + q.n + '</span></div>';
+    }).join('') + '</section>' +
+    '<span style="font-size:15px;font-weight:700">Pembahasan</span>' +
+    '<div class="chips" style="margin-top:-4px">' + [['salah', 'Salah & kosong', d.wrongN], ['ragu', 'Ragu', d.raguN], ['semua', 'Semua', d.n]].map(function (x) {
+      return '<button class="chip" data-f="' + x[0] + '" aria-pressed="' + (S.detF === x[0]) + '">' + x[1] + '<span class="cap">' + x[2] + '</span></button>';
+    }).join('') + '</div>';
+  var list = d.review.filter(function (r) { return S.detF === 'salah' ? !r.ok && !r.gone : S.detF === 'ragu' ? r.ragu : true; })
+    .sort(function (a, b) { return (a.ok ? 1 : 0) - (b.ok ? 1 : 0); });
+  if (!list.length) v += '<div class="empty" style="padding:24px 12px"><span class="mu" style="font-size:14px">' + (S.detF === 'salah' ? 'Tidak ada soal yang salah atau kosong.' : 'Tidak ada soal yang ditandai ragu.') + '</span></div>';
+  v += list.map(function (r) {
+    if (r.gone) return '<article class="card rv"><span class="badge mu">Soal ini sudah tidak ada di bank soal' + (r.ragu ? ' · ragu' : '') + '</span><span class="s13 mu">Jawabanmu waktu itu: ' + (r.mine == null ? '–' : L[r.mine]) + '</span></article>';
+    return '<article class="card rv"><span class="badge" style="color:' + (r.ok ? 'var(--ac)' : 'var(--bad)') + '">' + (r.ok ? 'Benar' : r.mine == null ? 'Kosong' : 'Salah') + (r.ragu ? ' · ragu' : '') + ' · kamu ' + (r.mine == null ? '–' : L[r.mine]) + ', benar ' + L[r.right] + '</span>' +
+      '<span class="eyebrow">' + esc(r.topic) + '</span><span style="font-size:14px;line-height:1.5;white-space:pre-wrap">' + esc(r.q) + '</span>' +
+      '<span class="s13" style="color:var(--ac);font-weight:600">' + L[r.right] + '. ' + esc(r.options[r.right]) + '</span>' +
+      '<span class="s13 mu" style="line-height:1.55;white-space:pre-wrap">' + esc(r.explain) + (r.basis ? '\n<i>Dasar: ' + esc(r.basis) + '</i>' : '') + '</span></article>';
+  }).join('');
+  frame(v, '', { top: riwHead('Riwayat simulasi'), keepScroll: keep });
+  bindBack(backToRiwayat);
+  app.querySelectorAll('[data-f]').forEach(function (b) { b.onclick = function () { hap('sel'); S.detF = b.getAttribute('data-f'); var vv = document.getElementById('view'); renderDetail(vv ? vv.scrollTop : 0); }; });
 }
 function showLastResult() {
   loading();
