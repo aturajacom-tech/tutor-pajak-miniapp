@@ -59,6 +59,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:
 .chip .cap{font-size:11px;font-weight:700;padding:3px 8px;border-radius:12px;background:var(--up);color:var(--mu)}
 .chip[aria-pressed=true] .cap{background:var(--bg);color:var(--au)}
 .back{width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:none;border:0;margin-left:-12px}
+.tgback .back{display:none}
 .topbar{display:flex;align-items:center;gap:4px;padding:8px 12px 0 20px}
 .skel{border-radius:20px;background:linear-gradient(90deg,var(--sf),var(--up),var(--sf));background-size:200% 100%;animation:sh 1.2s infinite linear;border:1px solid var(--ln)}
 @keyframes sh{to{background-position:-200% 0}}
@@ -202,7 +203,10 @@ function setBack(fn) {
   if (!TG || !tgVer('6.1')) return;
   try { if (fn) TG.BackButton.show(); else TG.BackButton.hide(); } catch (e) {}
 }
-if (TG && tgVer('6.1')) TG.BackButton.onClick(function () { if (backFn) backFn(); });
+if (TG && tgVer('6.1')) {
+  TG.BackButton.onClick(function () { if (backFn) backFn(); });
+  document.documentElement.classList.add('tgback'); // tombol kembali Telegram aktif: sembunyikan tombol kembali di halaman
+}
 function closeApp() { if (TG) TG.close(); }
 
 // ---------- util ----------
