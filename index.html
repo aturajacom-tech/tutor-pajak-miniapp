@@ -946,7 +946,9 @@ function openDuelOne(code, o) {
   dlStop();
   S.tab = 'duel'; DL.code = code; DL.screen = 'one';
   loading();
-  api('duel/one', null, '?c=' + encodeURIComponent(code) + (o ? '&o=' + encodeURIComponent(o) : '')).then(function (d) {
+  var meP = S.me ? Promise.resolve(S.me) : api('me').then(function (m) { S.me = m; return m; }).catch(function () { return null; });
+  Promise.all([api('duel/one', null, '?c=' + encodeURIComponent(code) + (o ? '&o=' + encodeURIComponent(o) : '')), meP]).then(function (r) {
+    var d = r[0];
     DL.one = d; DL.role = d.role;
     if (d.view === 'result') { DL.res = d.result; return renderDuelResult(); }
     if (d.view === 'intro') return renderIntro();
