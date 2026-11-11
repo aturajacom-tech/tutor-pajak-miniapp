@@ -206,6 +206,35 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--ac);outline-offset:
 .kline{display:flex;gap:8px;align-items:baseline;font-size:13px}
 .kline .k{width:52px;flex:none;font-weight:700}
 .why{margin:0 16px 16px;padding:14px;border-radius:14px;background:var(--up);font-size:14px;line-height:1.55;color:var(--mu2);white-space:pre-wrap}
+/* tanya Pak Tegas (T7) */
+.askin{border-radius:20px;padding:14px 14px 14px 16px;background:var(--sf);border:1px solid var(--lock);display:flex;flex-direction:column;gap:10px;width:100%;text-align:left;color:var(--tx)}
+.askin .go{width:40px;height:40px;border-radius:14px;background:var(--ac);display:flex;align-items:center;justify-content:center;flex:none}
+.askin.off .go{background:var(--lock)}
+.askbtn{min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:6px;border-radius:14px;border:1px solid var(--lock);background:none;color:var(--tx);font-size:14px;font-weight:600}
+.ptseal{width:56px;height:56px;border-radius:28px;border:2px solid #E4B86077;display:flex;align-items:center;justify-content:center;transform:rotate(-8deg);font-family:var(--disp);font-size:18px;font-weight:800;color:var(--au);letter-spacing:.06em}
+.sugg{min-height:52px;display:flex;align-items:center;gap:12px;text-align:left;padding:10px 14px;border-radius:14px;background:var(--sf);border:1px solid var(--ln);color:var(--tx);font-size:14px;width:100%}
+.ans{display:flex;flex-direction:column;gap:10px}
+.ptwho{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--au)}
+.ptwho .d{width:8px;height:8px;border-radius:4px;background:var(--au)}
+.ptwho .m{margin-left:auto;letter-spacing:0;font-weight:600;color:var(--mu)}
+.fchips{display:flex;gap:8px;flex-wrap:wrap}
+.fchip{min-height:44px;display:flex;align-items:center;padding:0 14px;border-radius:22px;background:var(--sf);border:1px solid var(--ln);color:var(--tx);font-size:13px;font-weight:600}
+.typing{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mu)}
+.typing>span{display:flex;gap:4px}
+.typing i{width:6px;height:6px;border-radius:3px;background:var(--ac);display:inline-block;animation:ptd 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes ptd{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.typing i{animation:none;opacity:.7}}
+.pin{border-radius:16px;padding:14px;background:var(--sf);border:1px solid var(--ln);display:flex;flex-direction:column;gap:6px}
+.composer{flex:1;display:flex;align-items:flex-end;gap:10px;min-width:0}
+.composer textarea{flex:1;min-width:0;min-height:48px;max-height:120px;resize:none;padding:13px 14px;border-radius:16px;background:var(--sf);border:1px solid var(--lock);color:var(--tx);font:inherit;font-size:16px;line-height:1.4}
+.composer textarea::placeholder{color:var(--dim)}
+.composer textarea:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+.composer .send{width:48px;height:48px;flex:none;border-radius:16px;border:0;background:var(--ac);display:flex;align-items:center;justify-content:center}
+.composer .send[disabled]{background:var(--lock);cursor:default}
+.lockbar{flex:1;display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:16px;background:var(--sf);border:1px solid var(--ln)}
+.askerr{display:flex;flex-direction:column;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:#2E1A17;border:1px solid #5A2E27;font-size:13px;color:#F3C7BF}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -282,6 +311,7 @@ var I = {
   flame: '<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.6 2.5-4.6.2 1.6 1 2.6 2 3 0-3.4.5-6 .5-8.4z"/>',
   list: '<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',
   swords: '<path d="M5 5l9 9M19 5l-9 9M7 13l4 4M17 13l-4 4M5 19l3-3M19 19l-3-3"/>',
+  chat: '<path d="M5 5h14v10H10l-5 4z"/><path d="M9 10h.01M12 10h.01M15 10h.01"/>', arrowR: '<path d="M5 12h14M13 6l6 6-6 6"/>',
   plus: '<path d="M12 5v14M5 12h14"/>', send: '<path d="M21 4L3 11l6 2 2 6 3-4 5 4z"/><path d="M9 13l12-9"/>',
   lock: '<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>'
 };
@@ -338,7 +368,7 @@ function go(tab, arg) {
   if (tab === 'rapor') return withMe(renderRapor);
   if (tab === 'materi') return openMateri(arg);
   if (tab === 'simulasi') return withMe(renderSimStart);
-  if (tab === 'tabel') return openTabel();
+  if (tab === 'tabel' || tab === 'tanya') return openTanya(arg);
   if (tab === 'kesalahan') return openKes();
   if (tab === 'duel') return openDuel(arg);
 }
@@ -373,13 +403,12 @@ function renderHome(keep) {
   }
   var ring = 163.4, dn = Math.min(1, m.daily.n / Math.max(1, m.daily.target));
   var done = m.missions.filter(function (x) { return x.done; }).length;
-  var showTbl = m.lastAi && m.lastAi.table && Date.now() - m.lastAi.at < 48 * 3600e3;
   var v = '' +
     '<div class="between" style="align-items:center">' +
       '<div class="row"><div class="avatar" aria-hidden="true">' + esc(initials(m.name)) + '</div><div style="display:flex;flex-direction:column"><span class="s13 mu">' + greet() + '</span><span style="font-size:16px;font-weight:700">' + esc(m.name) + '</span></div></div>' +
       '<button class="pill" id="tkpill" aria-label="Ganti tingkat UKP, sekarang ' + esc(m.tingkatName) + '">UKP ' + esc(m.tingkat) + (m.tingkatList.length > 1 ? ic('chevD', 14, 'var(--mu)', 2) : '') + '</button>' +
     '</div>' +
-    (showTbl ? '<button class="banner" id="tblban"><span class="dot"></span><span style="flex:1">Tabel dari jawaban Pak Tegas siap dibuka</span>' + ic('chevR', 16, 'var(--mu)', 2) + '</button>' : '') +
+    askEntry(m) +
     '<section class="card big rankcard">' +
       '<div class="seal-r" aria-hidden="true"><div>JABATAN<br>' + (r.i + 1) + ' / 6</div></div>' +
       '<div style="display:flex;flex-direction:column;gap:4px"><span class="eyebrow" style="font-size:12px;letter-spacing:.14em">Jabatanmu</span><span class="rankname">' + esc(r.name).replace(' Pajak', '<br>Pajak') + '</span></div>' +
@@ -404,7 +433,7 @@ function renderHome(keep) {
     : '<button class="btn pri" id="lanjut">Simulasi ujian</button>';
   frame(v, dock, { keepScroll: keep });
   var p = document.getElementById('tkpill'); if (p && m.tingkatList.length > 1) p.onclick = tingkatSheet;
-  var b = document.getElementById('tblban'); if (b) b.onclick = function () { go('tabel'); };
+  document.getElementById('askin').onclick = function () { hap('sel'); go('tanya'); };
   document.getElementById('lanjut').onclick = function () { if (m.next) sendToChat({ a: 'prac', topic: m.next.code }, 'Latihan dimulai di chat'); else go('simulasi'); };
 }
 function sheet(inner, bind) {
@@ -585,21 +614,151 @@ function tgRender(html) {
   flush();
   return out.join('');
 }
-function openTabel() {
-  setBack(function () { go('beranda'); });
-  frame('<div class="skel" style="height:60px;width:70%;align-self:flex-end"></div><div class="skel" style="height:260px"></div>', '', { nav: false });
-  setBack(function () { go('beranda'); });
-  api('tabel').then(function (d) {
-    S.tabel = d;
-    var top = '<header class="topbar"><button class="back" id="bk" aria-label="Kembali">' + ic('chevL', 22, 'var(--tx)', 2) + '</button><span class="s13 mu">' + (d.none ? 'Jawaban Pak Tegas' : 'Dari jawaban Pak Tegas · ' + ago(d.at)) + '</span></header>';
-    var v = d.none ? '<div class="empty"><span class="disp" style="font-size:22px;font-weight:800">Belum ada jawaban</span><span class="mu" style="font-size:14px;line-height:1.5">Tanyakan sesuatu ke Pak Tegas di chat. Jawaban yang memuat tabel bisa dibuka rapi di sini.</span></div>'
-      : '<div class="bubble">' + esc(d.q) + '</div>' + tgRender(d.html);
-    frame(v, '<button class="btn pri" id="toChat">Kembali ke chat</button>', { nav: false, top: top });
-    setBack(function () { go('beranda'); });
-    document.getElementById('bk').onclick = function () { go('beranda'); };
-    document.getElementById('toChat').onclick = function () { TG ? closeApp() : go('beranda'); };
-    app.querySelectorAll('.spoiler').forEach(function (sp) { sp.onclick = function () { sp.classList.add('open'); }; });
-  }).catch(function (e) { errorView(e, openTabel); });
+// ---------- Tanya Pak Tegas (T7) ----------
+// Satu layar tanya-jawab: umum (dari Beranda / tombol "Lihat tabel" di chat) atau tentang satu soal (dari pembahasan).
+// Kuota sama dengan chat; dikunci server selama simulasi atau soal duel berjalan.
+var ASK = { qid: null, mine: null, back: null, d: null, busy: false, pend: null, err: null, draft: '' };
+var FOLLOW_LBL = { simple: 'Lebih sederhana', quiz: 'Beri contoh soal' };
+function askEntry(m) {
+  var a = m.ai || { left: 0, limit: 0, locked: null }, lk = a.locked === 'sim', off = lk || !a.left;
+  var sub = lk ? 'Terkunci selama simulasi berjalan' : !a.left ? 'Kuota tanya hari ini habis' :
+    'Jawaban berdasar modul UKP ' + esc(m.tingkat) + ' · <span style="color:var(--mu2);font-weight:600">' + a.left + ' tersisa hari ini</span>';
+  return '<button class="askin' + (off ? ' off' : '') + '" id="askin" aria-label="Tanya Pak Tegas. ' + (lk ? 'Terkunci selama simulasi berjalan' : a.left + ' pertanyaan tersisa hari ini') + '">' +
+    '<span class="row" style="width:100%">' + ic('chat', 22, 'var(--ac)') + '<span style="flex:1;font-size:15px;color:var(--mu)">Tanya Pak Tegas…</span>' +
+    '<span class="go" aria-hidden="true">' + ic('arrowR', 18, '#0D1412', 2.2) + '</span></span><span class="small mu">' + sub + '</span></button>';
+}
+function askBtn(id, mine) {
+  return '<button class="askbtn" data-ask="' + esc(id) + '" data-mine="' + (mine == null ? '' : mine) + '">' + ic('chat', 18, 'var(--ac)') + 'Tanya Pak Tegas soal ini</button>';
+}
+// back(y): gambar ulang layar asal di posisi gulir yang sama
+function bindAsk(back) {
+  app.querySelectorAll('[data-ask]').forEach(function (b) {
+    b.onclick = function (ev) {
+      ev.stopPropagation(); hap('sel');
+      var v = document.getElementById('view'), y = v ? v.scrollTop : 0, mn = b.getAttribute('data-mine');
+      openTanya({ qid: b.getAttribute('data-ask'), mine: mn === '' ? null : Number(mn), back: function () { back(y); } });
+    };
+  });
+}
+function openTanya(arg) {
+  arg = arg || {};
+  ASK.qid = arg.qid || null; ASK.mine = arg.mine == null ? null : arg.mine;
+  ASK.back = arg.back || function () { go('beranda'); };
+  ASK.d = null; ASK.busy = false; ASK.pend = null; ASK.err = null;
+  frame('<div class="skel" style="height:56px"></div><div class="skel" style="height:52px;width:70%;align-self:flex-end"></div><div class="skel" style="height:220px"></div>', '', { nav: false });
+  setBack(askBack);
+  var q = ASK.qid ? '?qid=' + encodeURIComponent(ASK.qid) + (ASK.mine != null ? '&mine=' + ASK.mine : '') : '';
+  api('ask', null, q).then(function (d) { ASK.d = d; renderTanya('bottom'); })
+    .catch(function (e) { errorView(e, function () { openTanya(arg); }); setBack(askBack); });
+}
+function askBack() { hap('sel'); var f = ASK.back; ASK.d = null; setBack(null); f(); }
+function askLock(d) {
+  var t = d.locked === 'sim' ? ['Terkunci selama simulasi', 'Kumpulkan simulasimu dulu, lalu tanya lagi.']
+    : d.locked === 'duel' ? ['Terkunci selama duel', 'Selesaikan soal duelmu dulu, lalu tanya lagi.']
+    : ['Kuota tanya hari ini habis', 'Besok terisi lagi. Sementara itu, lanjut latihan soal.'];
+  return '<div class="lockbar">' + ic('lock', 20, 'var(--mu)') + '<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700">' + t[0] + '</span><span class="small mu">' + t[1] + '</span></div></div>';
+}
+function askPin(s) {
+  var mine = s.mine == null ? 'Kamu tidak menjawab' : s.mine === s.right ? 'Jawabanmu benar: <strong style="color:var(--ac)">' + L[s.right] + '. ' + esc(s.rightText) + '</strong>'
+    : 'Jawabanmu <strong style="color:var(--bad)">' + L[s.mine] + '. ' + esc(s.mineText) + '</strong>';
+  return '<section class="pin"><span class="eyebrow">Soal yang dibahas · ' + esc(s.topic) + '</span><span style="font-size:14px;line-height:1.5;white-space:pre-wrap">' + esc(s.q) + '</span>' +
+    '<span class="s13 mu2" style="line-height:1.5">' + mine + (s.mine === s.right ? '' : ' · benar <strong style="color:var(--ac)">' + L[s.right] + '. ' + esc(s.rightText) + '</strong>') + '</span></section>';
+}
+function askItemHtml(x, general) {
+  var meta = ago(x.at) + (x.src === 'chat' ? ' · di chat' : '');
+  return '<div class="bubble">' + esc(x.q) + '</div>' +
+    '<article class="ans"><span class="ptwho"><span class="d" aria-hidden="true"></span>PAK TEGAS<span class="m">' + esc(meta) + '</span></span>' +
+    (general && x.soal ? '<span class="small mu">Tentang soal: ' + esc(x.soal.q.length > 70 ? x.soal.q.slice(0, 70) + '…' : x.soal.q) + '</span>' : '') +
+    tgRender(x.html) + '</article>';
+}
+function renderTanya(scroll) {
+  var d = ASK.d; if (!d) return;
+  var general = !d.soal, open = !d.locked && d.left > 0;
+  var top = '<header class="topbar" style="padding:8px 16px 8px 12px;border-bottom:1px solid var(--ln2)"><button class="back" id="abk" aria-label="Kembali">' + ic('chevL', 22, 'var(--tx)', 2) + '</button>' +
+    '<div style="flex:1;display:flex;flex-direction:column;min-width:0;padding-left:8px"><span class="disp" style="font-size:18px;font-weight:800">Tanya Pak Tegas</span><span class="small mu">' + (general ? 'Modul UKP ' + esc(d.tkName) : 'Membahas 1 soal') + '</span></div>' +
+    '<span class="num" style="flex:none;padding:6px 10px;border-radius:12px;background:var(--sf);border:1px solid var(--ln);font-size:12px;font-weight:700;color:var(--mu2)">' + d.left + ' tersisa</span></header>';
+  var v = d.soal ? askPin(d.soal) : '';
+  var empty = !d.items.length && !ASK.pend;
+  if (empty && general) {
+    v += '<div style="display:flex;flex-direction:column;gap:14px;padding-top:8px"><div class="ptseal" aria-hidden="true">PT</div>' +
+      '<span class="disp" style="font-size:24px;font-weight:800;line-height:1.2">Tanya apa saja soal materi UKP.</span>' +
+      '<span class="mu2" style="font-size:14px;line-height:1.55">Jawabanku berdasar modul resmi, dan dasar hukumnya selalu kusebut di akhir.</span></div>';
+  }
+  if (empty && d.suggest.items.length && open) {
+    v += (general ? '<span class="eyebrow" style="margin-top:6px">Contoh' + (d.suggest.topic ? ' dari topik terlemahmu · ' + esc(d.suggest.topic) : '') + '</span>'
+      : '<span class="s13 mu">Pak Tegas sudah tahu soal dan jawabanmu. Langsung tanya saja, atau pilih:</span>') +
+      '<div style="display:flex;flex-direction:column;gap:8px">' + d.suggest.items.map(function (s, k) {
+        return '<button class="sugg" data-sg="' + k + '"><span style="flex:1">' + esc(s) + '</span>' + ic('chevR', 16, 'var(--mu)', 2) + '</button>';
+      }).join('') + '</div>';
+  }
+  v += d.items.map(function (x) { return askItemHtml(x, general); }).join('');
+  if (ASK.pend) {
+    v += '<div class="bubble">' + esc(ASK.pend) + '</div>';
+    v += ASK.err ? '<div class="askerr" role="alert"><span>Pak Tegas sedang gangguan, jawaban belum didapat. Kuotamu tidak terpakai.</span><button class="fchip" id="retry">Coba lagi</button></div>'
+      : '<div class="typing" role="status">' + '<span aria-hidden="true"><i></i><i></i><i></i></span>Pak Tegas sedang menulis… biasanya 10–20 detik</div>';
+  }
+  if (!ASK.busy && !ASK.pend && d.items.length && open) {
+    v += '<div class="fchips">' + Object.keys(FOLLOW_LBL).map(function (f) { return '<button class="fchip" data-fl="' + f + '">' + FOLLOW_LBL[f] + '</button>'; }).join('') + '</div>';
+  }
+  var dock = open
+    ? '<div class="composer"><label class="sr" for="askq">' + (general ? 'Pertanyaan untuk Pak Tegas' : 'Pertanyaan tentang soal ini') + '</label>' +
+      '<textarea id="askq" rows="1" maxlength="1000" placeholder="' + (general ? 'Tulis pertanyaanmu…' : 'Tanya tentang soal ini…') + '"' + (ASK.busy ? ' disabled' : '') + '>' + esc(ASK.draft) + '</textarea>' +
+      '<button class="send" id="asks" aria-label="Kirim pertanyaan"' + (ASK.busy || !ASK.draft.trim() ? ' disabled' : '') + '>' + ic('arrowR', 20, '#0D1412', 2.2) + '</button></div>'
+    : askLock(d);
+  frame(v, dock, { nav: false, top: top, keepScroll: scroll === 'answer' ? null : 1e9 });
+  setBack(askBack);
+  document.getElementById('abk').onclick = askBack;
+  var view = document.getElementById('view');
+  if (scroll === 'answer') {
+    var all = app.querySelectorAll('.ans'), last = all[all.length - 1];
+    view.scrollTop = 1e9;
+    if (last) view.scrollTop = Math.max(0, view.scrollTop + last.getBoundingClientRect().top - view.getBoundingClientRect().top - 72);
+  }
+  app.querySelectorAll('.spoiler').forEach(function (sp) { sp.onclick = function () { sp.classList.add('open'); }; });
+  app.querySelectorAll('[data-sg]').forEach(function (b) { b.onclick = function () { askSend(d.suggest.items[Number(b.getAttribute('data-sg'))]); }; });
+  app.querySelectorAll('[data-fl]').forEach(function (b) { b.onclick = function () { askSend('', b.getAttribute('data-fl')); }; });
+  var rt = document.getElementById('retry'); if (rt) rt.onclick = function () { var e = ASK.err; ASK.err = null; ASK.pend = null; askSend(e.text, e.f); };
+  var ta = document.getElementById('askq'), sb = document.getElementById('asks');
+  if (ta) {
+    var fit = function () { ta.style.height = 'auto'; ta.style.height = Math.min(120, ta.scrollHeight + 2) + 'px'; };
+    fit();
+    ta.oninput = function () { ASK.draft = ta.value; sb.disabled = ASK.busy || !ta.value.trim(); fit(); };
+    ta.onkeydown = function (e) {
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && window.matchMedia && window.matchMedia('(pointer:fine)').matches) { e.preventDefault(); askSend(ta.value); }
+    };
+    sb.onclick = function () { askSend(ta.value); };
+  }
+}
+function askSend(text, f) {
+  var d = ASK.d;
+  if (!d || ASK.busy) return;
+  text = String(text || '').trim();
+  if (!f && !text) return;
+  ASK.busy = true; ASK.err = null; ASK.pend = f ? FOLLOW_LBL[f] : text;
+  if (!f) ASK.draft = '';
+  hap('light'); renderTanya('bottom');
+  var body = f ? { f: f } : { q: text };
+  if (ASK.qid) { body.qid = ASK.qid; body.mine = ASK.mine; }
+  api('ask', body).then(function (r) {
+    if (ASK.d !== d) return;
+    ASK.busy = false; ASK.pend = null;
+    d.items.push(r.item); d.left = r.left;
+    if (S.me && S.me.ai) S.me.ai.left = r.left;
+    hap('ok'); renderTanya('answer');
+  }).catch(function (e) {
+    if (ASK.d !== d) return;
+    var er = (e && e.data) || {};
+    ASK.busy = false;
+    if (er.error === 'locked' || er.error === 'quota') {
+      if (er.error === 'locked') d.locked = er.why; else d.left = 0;
+      ASK.pend = null; if (!f) ASK.draft = text;
+    } else {
+      ASK.err = { text: text, f: f };
+      if (typeof er.left === 'number') d.left = er.left;
+    }
+    if (S.me && S.me.ai) S.me.ai.left = d.left;
+    hap('error'); renderTanya('bottom');
+  });
 }
 
 // ---------- Rapor ----------
@@ -680,7 +839,7 @@ function renderKes(keep) {
         (x.mine != null && x.mine !== x.right ? '<span class="kline"><span class="k" style="color:var(--bad)">Kamu</span><span class="mu2" style="text-decoration:line-through;text-decoration-color:#FF8A7A88">' + L[x.mine] + '. ' + esc(x.options[x.mine]) + '</span></span>' : '') +
         '<span class="kline"><span class="k" style="color:var(--ac)">Benar</span><span style="font-weight:600">' + L[x.right] + '. ' + esc(x.options[x.right]) + '</span></span></span>' +
         (open ? '' : '<span class="small mu">Ketuk untuk pembahasan</span>') + '</button>' +
-        (open ? '<div class="why">' + esc(x.explain) + (x.basis ? '\n\n<span class="small mu">Dasar: ' + esc(x.basis) + '</span>' : '') + '</div>' : '') + '</article>';
+        (open ? '<div class="why">' + esc(x.explain) + (x.basis ? '\n\n<span class="small mu">Dasar: ' + esc(x.basis) + '</span>' : '') + '</div><div style="padding:0 16px 16px;display:flex">' + askBtn(x.id, x.mine) + '</div>' : '') + '</article>';
     }).join('') + (items.length > S.kesN ? '<button class="btn ghost" id="more">Tampilkan lagi (' + (items.length - S.kesN) + ')</button>' : '');
   frame(v, d.total ? '<button class="btn pri" id="ulang">Ulangi di chat <span class="sub">· ' + Math.min(10, d.total) + ' soal</span></button>' : '<button class="btn ghost" id="bk2">Kembali ke rapor</button>', { nav: false, top: top, keepScroll: keep });
   setBack(function () { go('rapor'); });
@@ -690,6 +849,7 @@ function renderKes(keep) {
   var mo = document.getElementById('more'); if (mo) mo.onclick = function () { S.kesN += 40; renderKes(document.getElementById('view').scrollTop); };
   app.querySelectorAll('[data-f]').forEach(function (b) { b.onclick = function () { hap('sel'); S.kesF = b.getAttribute('data-f'); S.kesOpen = -1; S.kesN = 40; renderKes(); }; });
   app.querySelectorAll('[data-k]').forEach(function (b) { b.onclick = function () { var k = Number(b.getAttribute('data-k')); S.kesOpen = S.kesOpen === k ? -1 : k; renderKes(document.getElementById('view').scrollTop); }; });
+  bindAsk(renderKes);
 }
 
 // ---------- Simulasi ----------
@@ -866,10 +1026,11 @@ function renderDetail(keep) {
     return '<article class="card rv"><span class="badge" style="color:' + (r.ok ? 'var(--ac)' : 'var(--bad)') + '">' + (r.ok ? 'Benar' : r.mine == null ? 'Kosong' : 'Salah') + (r.ragu ? ' · ragu' : '') + ' · kamu ' + (r.mine == null ? '–' : L[r.mine]) + ', benar ' + L[r.right] + '</span>' +
       '<span class="eyebrow">' + esc(r.topic) + '</span><span style="font-size:14px;line-height:1.5;white-space:pre-wrap">' + esc(r.q) + '</span>' +
       '<span class="s13" style="color:var(--ac);font-weight:600">' + L[r.right] + '. ' + esc(r.options[r.right]) + '</span>' +
-      '<span class="s13 mu" style="line-height:1.55;white-space:pre-wrap">' + esc(r.explain) + (r.basis ? '\n<i>Dasar: ' + esc(r.basis) + '</i>' : '') + '</span></article>';
+      '<span class="s13 mu" style="line-height:1.55;white-space:pre-wrap">' + esc(r.explain) + (r.basis ? '\n<i>Dasar: ' + esc(r.basis) + '</i>' : '') + '</span>' + askBtn(r.id, r.mine) + '</article>';
   }).join('');
   frame(v, '', { top: riwHead('Riwayat simulasi'), keepScroll: keep });
   bindBack(backToRiwayat);
+  bindAsk(renderDetail);
   app.querySelectorAll('[data-f]').forEach(function (b) { b.onclick = function () { hap('sel'); S.detF = b.getAttribute('data-f'); var vv = document.getElementById('view'); renderDetail(vv ? vv.scrollTop : 0); }; });
 }
 function showLastResult() {
@@ -986,7 +1147,7 @@ function submitSim() {
   };
   attempt(0);
 }
-function renderResult() {
+function renderResult(keep) {
   var d = S.result, c = d.aman ? '#E4B860' : '#FF8A7A';
   var review = d.review.slice().sort(function (a, b) { return (a.ok ? 1 : 0) - (b.ok ? 1 : 0); });
   var v = '<section class="card big" style="position:relative;padding:24px 20px;display:flex;flex-direction:column;gap:6px;overflow:hidden">' +
@@ -1005,9 +1166,10 @@ function renderResult() {
       return '<article class="card rv"><span class="badge" style="color:' + (r.ok ? 'var(--ac)' : 'var(--bad)') + '">' + (r.ok ? 'Benar' : r.mine == null ? 'Kosong' : 'Salah') + (r.ragu ? ' · ragu' : '') + ' · kamu ' + (r.mine == null ? '–' : L[r.mine]) + ', benar ' + L[r.right] + '</span>' +
         '<span class="eyebrow">' + esc(r.topic) + '</span><span style="font-size:14px;line-height:1.5;white-space:pre-wrap">' + esc(r.q) + '</span>' +
         '<span class="s13" style="color:var(--ac);font-weight:600">' + L[r.right] + '. ' + esc(r.options[r.right]) + '</span>' +
-        '<span class="s13 mu" style="line-height:1.55;white-space:pre-wrap">' + esc(r.explain) + (r.basis ? '\n<i>Dasar: ' + esc(r.basis) + '</i>' : '') + '</span></article>';
+        '<span class="s13 mu" style="line-height:1.55;white-space:pre-wrap">' + esc(r.explain) + (r.basis ? '\n<i>Dasar: ' + esc(r.basis) + '</i>' : '') + '</span>' + askBtn(r.id, r.mine) + '</article>';
     }).join('');
-  frame(v, '<button class="btn ghost" id="rapor">Lihat rapor</button><button class="btn pri" id="lagi">Simulasi lagi</button>', {});
+  frame(v, '<button class="btn ghost" id="rapor">Lihat rapor</button><button class="btn pri" id="lagi">Simulasi lagi</button>', { keepScroll: keep });
+  bindAsk(renderResult);
   S.tab = 'simulasi';
   app.querySelectorAll('[data-tab]').forEach(function (b) { b.onclick = function () { S.result = null; go(b.getAttribute('data-tab')); }; });
   document.getElementById('rapor').onclick = function () { S.result = null; go('rapor'); };
@@ -1335,7 +1497,7 @@ var p = qs.get('p') || (TG && TG.initDataUnsafe && TG.initDataUnsafe.start_param
 if (!INIT) { errorView({ status: 401 }); return; }
 if (p === 'materi') go('materi', { t: qs.get('t') || undefined, s: qs.get('s') != null ? Number(qs.get('s')) : undefined });
 else if (p === 'duel') go('duel', qs.get('c') ? { c: qs.get('c'), o: qs.get('o') || null } : null);
-else if (['beranda', 'rapor', 'simulasi', 'tabel', 'kesalahan'].indexOf(p) >= 0) go(p);
+else if (['beranda', 'rapor', 'simulasi', 'tabel', 'tanya', 'kesalahan'].indexOf(p) >= 0) go(p);
 else go('beranda');
 })();
 </script>
